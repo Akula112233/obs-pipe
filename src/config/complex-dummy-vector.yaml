@@ -1,0 +1,94 @@
+api:
+  enabled: true
+  address: 0.0.0.0:8686
+sources:
+  splunk_source:
+    type: demo_logs
+    interval: 0.1
+    format: json
+transforms:
+  add_severity:
+    type: remap
+    inputs:
+      - splunk_source
+    source: |
+      if random_float(0.0, 1.0) > 0.7 {
+        .severity = "critical"
+      } else {
+        .severity = "info"
+      }
+  route_by_severity:
+    type: route
+    inputs:
+      - add_severity
+    route:
+      critical: |
+        .severity == "critical"
+      normal: |
+        .severity == "info"
+      unmatched: |
+        true
+  enrich_critical:
+    type: remap
+    inputs:
+      - route_by_severity.critical
+    source: |
+      .alert_priority = "high"
+      .needs_immediate_action = true
+  sample_normal:
+    type: sample
+    inputs:
+      - route_by_severity.normal
+    rate: 3
+    key_field: message
+sinks:
+  raw_logs:
+    type: http
+    inputs:
+      - splunk_source
+    uri: http://host.docker.internal:3000/api/vector/raw-logs
+    method: post
+    encoding:
+      codec: json
+    compression: none
+    batch:
+      max_bytes: 1049000
+      max_events: 10
+    request:
+      headers:
+        Content-Type: application/json
+    healthcheck:
+      enabled: true
+  processed_logs:
+    type: http
+    inputs:
+      - enrich_critical
+      - sample_normal
+      - route_by_severity.unmatched
+    uri: http://host.docker.internal:3000/api/vector/processed-logs
+    method: post
+    encoding:
+      codec: json
+    compression: none
+    batch:
+      max_bytes: 1049000
+      max_events: 10
+    request:
+      headers:
+        Content-Type: application/json
+    healthcheck:
+      enabled: true
+  open_search:
+    type: console
+    inputs:
+      - enrich_critical
+      - sample_normal
+      - route_by_severity.unmatched
+    encoding:
+      codec: json
+  splunk_hec:
+    type: console
+    inputs:
+      - enrich_critical
+    encoding:
+      codec: json

@@ -1,0 +1,18 @@
+{
+  "announcements": [
+    {
+      "id": "maintenance-2023-12",
+      "message": "Scheduled maintenance completed successfully.",
+      "timestamp": "2023-12-15T00:00:00Z",
+      "severity": "info",
+      "allowDismiss": true
+    },
+    {
+      "id": "feature-release-2023-11",
+      "message": "New pipeline visualization features now available.",
+      "timestamp": "2023-11-01T00:00:00Z",
+      "severity": "info",
+      "allowDismiss": true
+    }
+  ]
+} 

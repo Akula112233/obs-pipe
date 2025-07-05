@@ -1,0 +1,19 @@
+sources:
+  demo_logs:
+    type: "demo_logs"
+    format: "syslog"
+    interval: 1.0
+
+transforms:
+  sample_info:
+    type: "sample"
+    inputs: ["demo_logs"]
+    rate: 5
+    key_field: "message"
+
+sinks:
+  console:
+    type: "console"
+    inputs: ["sample_info"]
+    encoding:
+      codec: "json" 

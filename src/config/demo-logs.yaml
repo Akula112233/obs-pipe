@@ -1,0 +1,72 @@
+sources:
+  app_logs:
+    type: "file"
+    include: ["/var/log/application/*.log"]
+    format: "json"
+    
+  system_logs:
+    type: "file"
+    include: ["/var/log/syslog"]
+    format: "syslog"
+
+transforms:
+  # Add environment tags
+  tag_env:
+    type: "remap"
+    inputs: ["app_logs", "system_logs"]
+    source: |
+      . = merge(., {
+        "environment": "production",
+        "datacenter": "us-east-1"
+      })
+
+  # Add severity levels
+  enrich_severity:
+    type: "remap"
+    inputs: ["tag_env"]
+    source: |
+      . = merge(., {
+        "severity": if exists(.level) { 
+          .level 
+        } else if includes(lowercase(.message), ["error", "exception"]) {
+          "error"
+        } else if includes(lowercase(.message), ["warn", "warning"]) {
+          "warn"
+        } else {
+          "info"
+        }
+      })
+
+  # Route based on severity
+  route_errors:
+    type: "route"
+    inputs: ["enrich_severity"]
+    route:
+      error: '.severity == "error"'
+      other: 'true'
+
+sinks:
+  splunk_errors:
+    type: "splunk_hec_logs"
+    inputs: ["route_errors.error"]
+    endpoint: "https://splunk.example.com:8088"
+    token: "dummy-splunk-token-12345"
+    encoding: "json"
+    indexed_fields: ["severity", "environment"]
+    batch:
+      max_events: 100
+
+  splunk_general:
+    type: "splunk_hec_logs"
+    inputs: ["route_errors.other"]
+    endpoint: "https://splunk.example.com:8088"
+    token: "dummy-splunk-token-12345"
+    encoding: "json"
+    indexed_fields: ["severity", "environment"]
+    batch:
+      max_events: 500
+
+  datadog_logs:
+    type: "datadog_logs"
+    inputs: ["route_errors.error", "route_errors.other"]
+    default_api_key: "dummy-dd-api-key-abcdef123456"

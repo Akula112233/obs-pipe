@@ -1,0 +1,85 @@
+services:
+  caddy-server-application:
+    container_name: caddy-server-application
+    environment:
+      - TZ=UTC
+    image: caddy:2-alpine
+    networks:
+      - app_network
+    ports:
+      - 80:80
+      - 443:443
+    profiles:
+      - all
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile-application:/etc/caddy/Caddyfile
+      - caddy_data_application:/data
+      - caddy_config_application:/config
+  caddy-server-worker:
+    container_name: caddy-server-worker
+    environment:
+      - TZ=UTC
+    ports:
+      - "2019:2019"
+      - "4041-9000:4041-9000"
+    image: caddy:2-alpine
+    networks:
+      - app_network
+    profiles:
+      - all
+    restart: unless-stopped
+    volumes:
+      - ./caddy-worker-initial.json:/etc/caddy/caddy_initial.json
+      - caddy_data_worker:/data
+      - caddy_config_worker:/config
+      - ./caddy-entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+  shift-dev-worker:
+    container_name: worker
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DOCKER_NETWORK=app_network
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://signoz-otel-collector:4317
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=nextjs-app
+      - CADDY_ADMIN_URL=http://caddy-server-worker:2019
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      interval: 30s
+      retries: 3
+      start_period: 5s
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:3000
+      timeout: 30s
+    image: us-central1-docker.pkg.dev/worker-448319/sift-dev-registry/shift-dev-worker:1234
+    networks:
+      - app_network
+      - signoz-net
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./runtime:/app/runtime
+
+volumes:
+  caddy_data_application: null
+  caddy_data_worker: null
+  caddy_config_application: null
+  caddy_config_worker: null
+
+networks:
+  app_network:
+    driver: bridge
+    name: app_network
+  signoz-net:
+    external: true
+    name: signoz-net

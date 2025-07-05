@@ -1,0 +1,212 @@
+{
+  "metadata": {
+    "title": "Detected System Issues and Anomalies",
+    "description": "This file contains anomalies and issues detected in the system, along with their associated log IDs for investigation.",
+    "generated_at": "2025-03-11T09:34:11.022177",
+    "total_issues": 6,
+    "total_related_logs": 105
+  },
+  "detected_issues": {
+    "memory_leak": {
+      "title": "Memory Leak Detected in Product Service",
+      "problem": "Abnormal memory growth detected in product-service instances with consistent upward trend and no release after GC cycles.",
+      "evidence": "Memory usage increased from 40% to 85% over 3 hours with no corresponding traffic increase. Multiple failed GC attempts detected.",
+      "severity": "critical",
+      "business_impact": "Degraded response times affecting all product catalog operations. If unresolved, will lead to service outage within estimated 4-6 hours.",
+      "log_count": 13,
+      "log_ids": [
+        "ML-f1d668c9",
+        "ML-c10d6991",
+        "ML-6a89b2fa",
+        "ML-c5755f52",
+        "ML-f118f8d1",
+        "ML-85d8e549",
+        "ML-7d3152ff",
+        "ML-9c53ad71",
+        "ML-7a5d1000",
+        "ML-9c216d28",
+        "ML-81e30682",
+        "ML-d481bac5",
+        "ML-e7404d7d"
+      ],
+      "example_queries": [
+        "Show me the memory usage pattern for product-service over the last 4 hours",
+        "What errors occurred after memory usage exceeded 75%?",
+        "When did garbage collection last succeed for product-service?",
+        "Show logs around the time when memory leak was first detected"
+      ]
+    },
+    "cascade_failure": {
+      "title": "Database Cluster Failure Causing System-Wide Outage",
+      "problem": "Primary database node failure triggered cascading errors across multiple dependent services.",
+      "evidence": "Database connectivity errors followed by circuit breaker activations in inventory, product, and order services. 503 errors appeared in frontend logs within 3 minutes of initial DB failure.",
+      "severity": "critical",
+      "business_impact": "Complete service outage affecting all customer-facing operations. Order processing and inventory management systems offline.",
+      "log_count": 21,
+      "log_ids": [
+        "CF-a3cde457",
+        "CF-faf8e510",
+        "CF-4dfbb3db",
+        "CF-ad9066a1",
+        "CF-4e0fbcbf",
+        "CF-368389de",
+        "CF-5ba61154",
+        "CF-0c96f035",
+        "CF-24f9cff7",
+        "CF-8e89999d",
+        "CF-380d4cac",
+        "CF-0b4bf912",
+        "CF-143f810a",
+        "CF-e3d200fc",
+        "CF-c3f8982f",
+        "CF-cb782d8a",
+        "CF-f6f6fb92",
+        "CF-ba6ce615",
+        "CF-b889660e",
+        "CF-1ccaff69",
+        "CF-fd385a46"
+      ],
+      "example_queries": [
+        "What was the first error before the system-wide outage?",
+        "Show the sequence of failures from database to frontend",
+        "How many services were affected by the database failure?",
+        "What's the error rate during the outage period compared to normal operation?"
+      ]
+    },
+    "security_breach": {
+      "title": "Potential Security Breach Detected",
+      "problem": "Multiple suspicious authentication attempts detected from unusual locations, followed by SQL injection attempts.",
+      "evidence": "10 failed login attempts for admin user from 5 different countries within 2 minutes. SQL injection pattern detected in search queries immediately after successful login.",
+      "severity": "high",
+      "business_impact": "Potential unauthorized access to customer data and administrative functions. Regulatory and compliance risks if data was exfiltrated.",
+      "log_count": 24,
+      "log_ids": [
+        "SB-1dabce13",
+        "SB-f22f0275",
+        "SB-5f732d1c",
+        "SB-fbe30a70",
+        "SB-96f19d30",
+        "SB-5b68d3c0",
+        "SB-769352bb",
+        "SB-9e53c665",
+        "SB-0af94282",
+        "SB-4a6cff57",
+        "SB-b00661a1",
+        "SB-b47e14eb",
+        "SB-0586e517",
+        "SB-18d20627",
+        "SB-cfdfccb5",
+        "SB-de9cef26",
+        "SB-d0118adf",
+        "SB-5ebc4508",
+        "SB-6fbda878",
+        "SB-cdf70dbb",
+        "SB-e580aa95",
+        "SB-93fb5716",
+        "SB-387fdbf5",
+        "SB-d38e6d95"
+      ],
+      "example_queries": [
+        "Show all login attempts for admin users in the last hour",
+        "What suspicious activities happened after the successful login?",
+        "Are there any signs of data exfiltration in the logs?",
+        "What security measures were automatically triggered during the incident?"
+      ]
+    },
+    "data_sync": {
+      "title": "Inventory Data Synchronization Failure",
+      "problem": "Partial inventory sync resulted in inventory discrepancies between systems, leading to order fulfillment errors.",
+      "evidence": "Network timeout during inventory sync process. Validation check shows only 68% of expected products were synchronized, but process reported success.",
+      "severity": "medium",
+      "business_impact": "Orders being accepted for out-of-stock items. 23 orders affected in the last 2 hours with incorrect inventory information.",
+      "log_count": 17,
+      "log_ids": [
+        "DS-97604c2e",
+        "DS-0a002f19",
+        "DS-111ff6f0",
+        "DS-5225fcac",
+        "DS-a0423bc0",
+        "DS-ba334007",
+        "DS-0816ce2a",
+        "DS-198dc5e3",
+        "DS-7ab2dde6",
+        "DS-431518d1",
+        "DS-23ca6819",
+        "DS-b0bf3dfc",
+        "DS-a71508bb",
+        "DS-8339a901",
+        "DS-de821f3a",
+        "DS-0432874a",
+        "DS-f65669a0"
+      ],
+      "example_queries": [
+        "Show me all failed inventory synchronization attempts",
+        "What orders were affected by the inventory discrepancy?",
+        "When did the inventory sync process last complete successfully?",
+        "What network issues occurred during the sync process?"
+      ]
+    },
+    "third_party": {
+      "title": "Payment Gateway Service Degradation",
+      "problem": "Increased latency and intermittent failures from payment processor affecting checkout completion.",
+      "evidence": "Payment gateway response times increased from avg 300ms to >3s. 42% of payment requests timing out after 5s threshold.",
+      "severity": "high",
+      "business_impact": "Checkout abandonment rate increased by 25%. Estimated revenue impact of $15,000/hour during peak shopping period.",
+      "log_count": 12,
+      "log_ids": [
+        "TP-a5c19e31",
+        "TP-0ca86e5f",
+        "TP-1b51364c",
+        "TP-45f54b98",
+        "TP-9ff75237",
+        "TP-6b11135c",
+        "TP-a5a7bcad",
+        "TP-48829014",
+        "TP-732ee005",
+        "TP-0ba446ac",
+        "TP-b434528d",
+        "TP-5463417e"
+      ],
+      "example_queries": [
+        "What's the payment gateway success rate over the last 4 hours?",
+        "Show me the trend of payment processing times",
+        "How many customers were affected by payment failures?",
+        "Are all payment methods equally affected or just specific ones?"
+      ]
+    },
+    "performance_degradation": {
+      "title": "Search Performance Degradation",
+      "problem": "Database query performance degradation affecting product search and catalog browsing.",
+      "evidence": "Query execution times increased from avg 200ms to >2s. Database connection pool consistently at 100% utilization with growing queue of waiting connections.",
+      "severity": "medium",
+      "business_impact": "Product search timeouts affecting user experience. Search abandonment rate increased by 35% in the last hour.",
+      "log_count": 18,
+      "log_ids": [
+        "PD-91d3bb5d",
+        "PD-9447c18c",
+        "PD-d285581f",
+        "PD-4914aca5",
+        "PD-d0e3f7a7",
+        "PD-2668a756",
+        "PD-530ddbf7",
+        "PD-e6337e2f",
+        "PD-7b808b3e",
+        "PD-796b5cfd",
+        "PD-ee6cae7c",
+        "PD-05dc2b51",
+        "PD-f335478c",
+        "PD-1c983b69",
+        "PD-a45bfa3e",
+        "PD-b0051f85",
+        "PD-010a8d7d",
+        "PD-22772fe7"
+      ],
+      "example_queries": [
+        "Show me the slowest database queries in the last hour",
+        "What's the correlation between search latency and database connection usage?",
+        "Are certain product categories more affected by the search slowdown?",
+        "How many users experienced search timeouts compared to normal operation?"
+      ]
+    }
+  }
+}

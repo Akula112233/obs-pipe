@@ -1,0 +1,21 @@
+{
+        debug
+        admin 0.0.0.0:2019
+}
+
+app.trysift.dev {
+    reverse_proxy  shift-dev-worker:3000 {
+
+        # Header modifications
+        header_up Host {http.request.host}
+        header_up X-Real-IP {http.request.remote.host}
+        header_up X-Forwarded-For {http.request.remote.host}
+        header_up X-Forwarded-Proto {http.request.scheme}
+    }
+
+    # Basic logging
+    log {
+        output file /var/log/caddy/app.trysift.dev.log
+        format console
+    }
+}

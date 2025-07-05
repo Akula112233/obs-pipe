@@ -1,0 +1,16 @@
+api:
+  enabled: true
+  address: "0.0.0.0:8686"
+
+sources:
+  test_source:
+    type: "demo_logs"
+    format: "syslog"
+    interval: 1
+
+sinks:
+  test_sink:
+    type: "console"
+    inputs: ["test_source"]
+    encoding:
+      codec: "json" 
